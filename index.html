@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Flash Flood EWS</title>
+
+<!-- ============================================================
+     EDIT ME: point this at your deployed Streamlit app's URL.
+     Must be a public https:// URL (Streamlit Community Cloud,
+     Render, Railway, etc.) — localhost only works for testing
+     on the same machine.
+     ============================================================ -->
+<script>
+  const STREAMLIT_APP_URL = "https://flood-ews-fzlspn8yaqihgxe3s2n8ka.streamlit.app/?embed=true";
+</script>
+
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0b1220" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Flood EWS" />
+<link rel="icon" href="icons/icon-192.png" />
+
+<style>
+  :root {
+    --water-cyan: #22d3ee;
+    --water-blue: #3b82f6;
+    --water-deep: #0b1220;
+  }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--water-deep);
+    font-family: 'Inter', -apple-system, sans-serif;
+    overscroll-behavior: none;
+  }
+  #app-frame {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+    background: var(--water-deep);
+  }
+  #splash {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(34,211,238,0.12), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(59,130,246,0.12), transparent 45%),
+      var(--water-deep);
+    color: #f0f6fc;
+    z-index: 10;
+    transition: opacity 0.4s ease;
+  }
+  #splash.hidden { opacity: 0; pointer-events: none; }
+  .logo-wave {
+    font-size: 44px;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .splash-title {
+    font-weight: 700; font-size: 16px; letter-spacing: 0.4px;
+    background: linear-gradient(90deg, #f0f6fc, var(--water-cyan));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .splash-sub { font-size: 12.5px; color: #8b949e; }
+  .offline-banner {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #5c1f1f; color: #fff; text-align: center;
+    font-size: 13px; padding: 6px; z-index: 20; display: none;
+  }
+</style>
+</head>
+<body>
+
+  <div id="offline-banner" class="offline-banner">
+    ⚠️ No internet connection — the live dashboard needs a connection to load data.
+  </div>
+
+  <div id="splash">
+    <div class="logo-wave">🌊</div>
+    <div class="splash-title">Flash Flood EWS</div>
+    <div class="splash-sub">Loading dashboard…</div>
+  </div>
+
+  <iframe id="app-frame" allow="geolocation" title="Flash Flood EWS Dashboard"></iframe>
+
+<script>
+  const frame = document.getElementById("app-frame");
+  const splash = document.getElementById("splash");
+  const offlineBanner = document.getElementById("offline-banner");
+
+  frame.src = STREAMLIT_APP_URL;
+  frame.addEventListener("load", () => splash.classList.add("hidden"));
+  // Safety timeout in case the 'load' event doesn't fire as expected
+  setTimeout(() => splash.classList.add("hidden"), 6000);
+
+  function updateOnlineStatus() {
+    offlineBanner.style.display = navigator.onLine ? "none" : "block";
+  }
+  window.addEventListener("online", updateOnlineStatus);
+  window.addEventListener("offline", updateOnlineStatus);
+  updateOnlineStatus();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
