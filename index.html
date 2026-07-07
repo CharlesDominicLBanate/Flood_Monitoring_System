@@ -5,12 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Flash Flood EWS</title>
 
-<!-- ============================================================
-     EDIT ME: point this at your deployed Streamlit app's URL.
-     Must be a public https:// URL (Streamlit Community Cloud,
-     Render, Railway, etc.) — localhost only works for testing
-     on the same machine.
-     ============================================================ -->
 <script>
   const STREAMLIT_APP_URL = "https://flood-ews-fzlspn8yaqihgxe3s2n8ka.streamlit.app/?embed=true";
 </script>
@@ -93,7 +87,6 @@
 
   frame.src = STREAMLIT_APP_URL;
   frame.addEventListener("load", () => splash.classList.add("hidden"));
-  // Safety timeout in case the 'load' event doesn't fire as expected
   setTimeout(() => splash.classList.add("hidden"), 6000);
 
   function updateOnlineStatus() {
