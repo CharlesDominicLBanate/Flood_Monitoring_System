@@ -1,7 +1,3 @@
-// Minimal service worker: just enough to satisfy PWA installability
-// and cache the shell (icon, manifest, wrapper page) for offline loading.
-// The Streamlit dashboard itself (inside the iframe) still needs internet.
-
 const CACHE_NAME = "flood-ews-shell-v1";
 const SHELL_FILES = [
   "./index.html",
@@ -27,8 +23,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Only handle shell-file requests; let the iframe's own requests
-  // (the live Streamlit app) go straight to the network.
+
   const isShellFile = SHELL_FILES.some((f) => event.request.url.endsWith(f.replace("./", "")));
   if (isShellFile) {
     event.respondWith(
