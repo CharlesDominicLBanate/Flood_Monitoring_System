@@ -1,106 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Flash Flood EWS</title>
-
-<script>
-  const STREAMLIT_APP_URL = "https://flood-ews-fzlspn8yaqihgxe3s2n8ka.streamlit.app/?embed=true";
-</script>
-
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#0b1220" />
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Flood EWS" />
-<link rel="icon" href="icons/icon-192.png" />
-
+<meta charset="utf-8">
+<title>Flash Flood EWS — Chaos-GIS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="GIS-Integrated Hybrid Chaos Theory-Based Flash Flood Early Warning System">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flood EWS">
 <style>
-  :root {
-    --water-cyan: #22d3ee;
-    --water-blue: #3b82f6;
-    --water-deep: #0b1220;
-  }
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background: var(--water-deep);
-    font-family: 'Inter', -apple-system, sans-serif;
-    overscroll-behavior: none;
-  }
-  #app-frame {
-    position: fixed; inset: 0;
-    width: 100%; height: 100%;
-    border: none;
-    background: var(--water-deep);
-  }
-  #splash {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 14px;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(34,211,238,0.12), transparent 45%),
-      radial-gradient(circle at 80% 80%, rgba(59,130,246,0.12), transparent 45%),
-      var(--water-deep);
-    color: #f0f6fc;
-    z-index: 10;
-    transition: opacity 0.4s ease;
-  }
-  #splash.hidden { opacity: 0; pointer-events: none; }
-  .logo-wave {
-    font-size: 44px;
-    animation: bob 2.2s ease-in-out infinite;
-  }
-  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  .splash-title {
-    font-weight: 700; font-size: 16px; letter-spacing: 0.4px;
-    background: linear-gradient(90deg, #f0f6fc, var(--water-cyan));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .splash-sub { font-size: 12.5px; color: #8b949e; }
-  .offline-banner {
-    position: fixed; top: 0; left: 0; right: 0;
-    background: #5c1f1f; color: #fff; text-align: center;
-    font-size: 13px; padding: 6px; z-index: 20; display: none;
-  }
+  :root { color-scheme: dark; }
+  html, body { height: 100%; margin: 0; background: #0b1220; color: #e6edf3;
+    font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #app { position: fixed; inset: 0; border: 0; width: 100%; height: 100%;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box; background: #0b1220; }
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px; text-align: center; padding: 24px; background: #0b1220; z-index: 2; }
+  .screen[hidden] { display: none; }
+  .screen img { width: 96px; height: 96px; border-radius: 50%; }
+  .screen h1 { font-size: 1.3rem; margin: 0; }
+  .screen p { margin: 0; color: #9fb3c8; max-width: 34rem; font-size: .95rem; line-height: 1.5; }
+  .screen code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+  .btn { background: #22d3ee; color: #08121c; border: 0; border-radius: 10px; padding: 10px 18px;
+    font-weight: 700; font-size: .95rem; cursor: pointer; text-decoration: none; }
+  .btn.alt { background: transparent; color: #22d3ee; border: 1px solid #22d3ee; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,.15);
+    border-top-color: #22d3ee; border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-  <div id="offline-banner" class="offline-banner">
-    ⚠️ No internet connection — the live dashboard needs a connection to load data.
-  </div>
+<!-- ============================================================
+     SETUP: put the URL of your deployed Streamlit app here
+     (e.g. Streamlit Community Cloud). Keep "?embed=true".
+     ============================================================ -->
+<script>
+  const APP_URL = "https://flood-ews-fzlspn8yaqihgxe3s2n8ka.streamlit.app/?embed=true";
+  const LOAD_TIMEOUT_MS = 20000;
+</script>
 
-  <div id="splash">
-    <div class="logo-wave">🌊</div>
-    <div class="splash-title">Flash Flood EWS</div>
-    <div class="splash-sub">Loading dashboard…</div>
-  </div>
+<iframe id="app" title="Flash Flood EWS" allow="fullscreen; geolocation" referrerpolicy="no-referrer-when-downgrade" hidden></iframe>
 
-  <iframe id="app-frame" allow="geolocation" title="Flash Flood EWS Dashboard"></iframe>
+<div class="screen" id="loading">
+  <img src="icons/icon-192.png" alt="Flood EWS">
+  <h1>Flood EWS</h1>
+  <div class="spinner" aria-hidden="true"></div>
+  <p>Loading dashboard…</p>
+</div>
+
+<div class="screen" id="offline" hidden>
+  <img src="icons/icon-192.png" alt="Flood EWS">
+  <h1 id="off-title">Can't reach the dashboard</h1>
+  <p id="off-msg">Check your internet connection. The dashboard needs a live connection to fetch weather data.</p>
+  <div class="row">
+    <button class="btn" id="retry">Try again</button>
+    <a class="btn alt" id="openweb" target="_blank" rel="noopener">Open in browser</a>
+  </div>
+</div>
+
+<div class="screen" id="setup" hidden>
+  <img src="icons/icon-192.png" alt="Flood EWS">
+  <h1>Setup needed</h1>
+  <p>Open <code>index.html</code> and set <code>APP_URL</code> to the address of your deployed Streamlit app.</p>
+</div>
 
 <script>
-  const frame = document.getElementById("app-frame");
-  const splash = document.getElementById("splash");
-  const offlineBanner = document.getElementById("offline-banner");
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const frame = $("app"), loading = $("loading"), offline = $("offline"), setup = $("setup");
+  let timer = null;
 
-  frame.src = STREAMLIT_APP_URL;
-  frame.addEventListener("load", () => splash.classList.add("hidden"));
-  setTimeout(() => splash.classList.add("hidden"), 6000);
-
-  function updateOnlineStatus() {
-    offlineBanner.style.display = navigator.onLine ? "none" : "block";
+  function show(which) {
+    loading.hidden = which !== "loading";
+    offline.hidden = which !== "offline";
+    setup.hidden = which !== "setup";
+    frame.hidden = which !== "app";
   }
-  window.addEventListener("online", updateOnlineStatus);
-  window.addEventListener("offline", updateOnlineStatus);
-  updateOnlineStatus();
+
+  function load() {
+    if (APP_URL.includes("YOUR-APP-NAME")) { show("setup"); return; }
+    $("openweb").href = APP_URL.replace("?embed=true", "");
+    if (!navigator.onLine) { show("offline"); return; }
+    show("loading");
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      $("off-title").textContent = "Dashboard is taking too long";
+      $("off-msg").textContent = "The server may be waking up or your connection is slow. Try again in a moment.";
+      show("offline");
+    }, LOAD_TIMEOUT_MS);
+    frame.src = APP_URL;
+  }
+
+  frame.addEventListener("load", () => {
+    if (!frame.src || frame.src === "about:blank") return;
+    clearTimeout(timer);
+    show("app");
+  });
+
+  $("retry").addEventListener("click", () => { frame.removeAttribute("src"); load(); });
+  window.addEventListener("online", load);
+  window.addEventListener("offline", () => show("offline"));
 
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(() => {});
-    });
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   }
+
+  load();
+})();
 </script>
 </body>
 </html>
